@@ -10,11 +10,13 @@ const auth = async (req, res, next) => {
 
   try {
     const decoded = verifyToken(token);
-    req.user = await User.findById(decoded.id).select('-password');
+    console.log('Decoded token:', decoded); // DEBUG
+    req.user = await User.findById(decoded.userId).select('-password'); // Adjust based on actual key
     next();
   } catch {
     res.status(401).json({ message: 'Token is not valid' });
   }
 };
+
 
 export default auth;

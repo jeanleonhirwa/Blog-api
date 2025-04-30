@@ -1,11 +1,23 @@
 import Blog from '../models/Blog.js';
+import { body,validationResult } from 'express-validator';
+
 
 export const createBlog = async (req, res) => {
+body('title').notEmpty().withMessage('Title is required'),
+body('content').notEmpty().withMessage('Content is required'),
+body('category').isMongoId().withMessage('Category is required')
+const errors = validationResult(req);
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
+if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const blog = new Blog({ ...req.body, author: req.user.id });
     await blog.save();
-    res.status(201).json(blog);
-  } catch {
+    res.status(201).json({blog});
+  } catch (error) {
+    console.error(error.message)
     res.status(500).json({ message: 'Server error' });
   }
 };
